@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A-Trace</title>
+</head>
+
+<body>
+    <h1>A-Trace</h1>
+    <button id="connect">Connect MetaMask</button>
+    <div id="account"></div>
+
+    <h2>Register Product</h2>
+    <input type="text" id="productName" placeholder="Product Name" />
+    <input type="text" id="productLocation" placeholder="Product Location" />
+    <button id="registerProduct">Register Product</button>
+
+    <h2>Trace Product</h2>
+    <input type="number" id="productId" placeholder="Product ID" />
+    <button id="traceProduct">Trace Product</button>
+    <div id="productDetails"></div>
+
+    <!-- Include UMD version of Ethers.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.umd.min.js"></script>
+
+    <script src="../index.js" type="module">
+        
+    </script>
+</body>
+
+</html>
