@@ -1,5 +1,9 @@
+const hre = require("hardhat");
+
+
 async function main() {
-    const SupplyChain = await ethers.getContractFactory("SupplyChain");
+    console.log('deploying')
+    const SupplyChain = await hre.ethers.getContractFactory("SupplyChain");
     const supplyChain = await SupplyChain.deploy();
     await supplyChain.deployed();
     console.log("SupplyChain deployed to:", supplyChain.address);
@@ -11,3 +15,4 @@ main()
         console.error(error);
         process.exit(1);
     });
+// celo Alfa Address = 0x76d462Eb3FB3096e3d1E1Cd80B029Ed259b8d0E6

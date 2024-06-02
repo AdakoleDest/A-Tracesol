@@ -5,10 +5,52 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>A-Trace</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        input {
+            padding: 8px;
+            margin: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        #productDetails {
+            margin-top: 20px;
+        }
+
+        #account {
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 
 <body>
-    <h1>A-Trace</h1>
+    <h1>A-Tracerr</h1>
     <button id="connect">Connect MetaMask</button>
     <div id="account"></div>
 
@@ -22,11 +64,184 @@
     <button id="traceProduct">Trace Product</button>
     <div id="productDetails"></div>
 
-    <!-- Include UMD version of Ethers.js library -->
-    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.umd.min.js"></script>
+    <script type="module">
+        import { ethers,Signer } from '../ethers-5.7.esm.min.js';
 
-    <script src="../index.js" type="module">
-        
+        const connectButton = document.getElementById('connect');
+        const accountDiv = document.getElementById('account');
+        const registerProductButton = document.getElementById('registerProduct');
+        const traceProductButton = document.getElementById('traceProduct');
+        const productDetailsDiv = document.getElementById('productDetails');
+
+        let signer;
+        let supplyChainContract;
+
+        const supplyChainAddress = '0x76d462Eb3FB3096e3d1E1Cd80B029Ed259b8d0E6';
+        const supplyChainAbi = [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "productId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "location",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "manufacturer",
+          "type": "address"
+        }
+      ],
+      "name": "ProductRegistered",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "productCount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "products",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "location",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "manufacturer",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "location",
+          "type": "string"
+        }
+      ],
+      "name": "registerProduct",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "productId",
+          "type": "uint256"
+        }
+      ],
+      "name": "traceProduct",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "location",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "manufacturer",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ];
+
+        async function connect() {
+            if (window.ethereum) {
+                try {
+                    await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    const provider = new ethers.providers.Web3Provider(window.ethereum);
+                    signer = provider.getSigner();
+                    accountDiv.innerText = `Connected: ${await signer.getAddress()}`;
+                    supplyChainContract = new ethers.Contract(supplyChainAddress, supplyChainAbi, signer);
+                } catch (error) {
+                    console.error('Error connecting to MetaMask', error);
+                }
+            } else {
+                alert('MetaMask is not installed!');
+            }
+        }
+
+        async function registerProduct() {
+            const name = document.getElementById('productName').value;
+            const location = document.getElementById('productLocation').value;
+            try {
+                const tx = await supplyChainContract.registerProduct(name, location);
+                await tx.wait();
+                alert('Product registered successfully!');
+            } catch (error) {
+                console.error('Error registering product', error);
+            }
+        }
+
+        async function traceProduct() {
+            const productId = document.getElementById('productId').value;
+            try {
+                const product = await supplyChainContract.traceProduct(productId);
+                productDetailsDiv.innerText = `Name: ${product[0]}, Location: ${product[1]}, Manufacturer: ${product[2]}`;
+            } catch (error) {
+                console.error('Error tracing product', error);
+                productDetailsDiv.innerText = 'Error tracing product!';
+            }
+        }
+
+        connectButton.addEventListener('click', connect);
+        registerProductButton.addEventListener('click', registerProduct);
+        traceProductButton.addEventListener('click', traceProduct);
     </script>
 </body>
 
