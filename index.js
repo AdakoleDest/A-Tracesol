@@ -17,6 +17,7 @@ import { Signer, ethers } from "./ethers-5.7.esm.min.js";
         ];
 
         async function connect() {
+            console.log('here')
             if (window.ethereum) {
                 try {
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
@@ -55,6 +56,6 @@ import { Signer, ethers } from "./ethers-5.7.esm.min.js";
             }
         }
 
-        connectButton.onclick = connect;
+        connectButton.onclick = connect();
         registerProductButton.onclick = registerProduct;
         traceProductButton.onclick = traceProduct;
